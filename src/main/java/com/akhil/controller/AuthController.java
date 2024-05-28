@@ -93,6 +93,7 @@ public class AuthController {
 
     res.setJwt(token);
     res.setAdmin(admin);
+    res.setMessage("Sign in successful");
 
     return res;
   }catch(Exception e){

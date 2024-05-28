@@ -9,7 +9,6 @@ public interface MerchantService {
     
     public Merchant findUserById(Long userId) throws Exception;
     public List<Merchant>findAllUsers() throws Exception;
-    public Merchant findUserByJwt(String jwt) throws Exception;
-    public Merchant updateUserById(Merchant user,Long id) throws Exception;
+    public Merchant createUser(MerchantDTO userDto) throws Exception;
     public void deleteUserById(Long id) throws Exception;
 }

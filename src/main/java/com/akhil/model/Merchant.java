@@ -25,7 +25,6 @@ public class Merchant {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String shopName;
   private String phoneNumber;
   private String userName;

@@ -1,34 +1,33 @@
 package com.akhil.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import com.akhil.service.MerchantDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import com.akhil.config.JwtProvider;
+import com.akhil.model.Category;
 import com.akhil.model.Merchant;
 import com.akhil.repository.MerchantRepository;
+import com.akhil.repository.CategoryRepository;
+
+import jakarta.validation.Valid;
+
 
 
 @Service
 public class MerchantServiceImplementation implements MerchantService{
-  
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MerchantRepository userRepository;
+    private MerchantRepository merchantRepository;
     
     @Autowired
-    private CategoryService postService;
-
-    @Autowired
-    private JwtProvider jwtProvider;
+    private CategoryRepository categoryRepository;
 
     @Override
     public Merchant findUserById(Long userId) throws Exception {
-         Optional<Merchant> opt = userRepository.findById(userId);
+         Optional<Merchant> opt = merchantRepository.findById(userId);
          if(opt.isPresent()){
             return opt.get();  
           }
@@ -36,56 +35,46 @@ public class MerchantServiceImplementation implements MerchantService{
     }
 
     @Override
-    public Merchant findUserByJwt(String jwt) throws Exception {
-      
-      String email = jwtProvider.getEmailFromJwtToken(jwt);
-      
-      if(email==null){
-        throw new Exception("Provide valid JWT token");
-      }
-
-      Merchant user = userRepository.findByEmail(email);
-      
-      if(user==null){
-        throw new Exception("User doesnot exists");
-      }
-      return user;
-    }
-
-    @Override
     public List<Merchant>findAllUsers(){
-        return userRepository.findAll();
+        return merchantRepository.findAll();
     } 
 
     @Override
-    public Merchant updateUserById(Merchant user,Long id) throws Exception{
-        Merchant oldUser = findUserById(id);
-        String userName = user.getUserName();
-        String email = user.getEmail();
-        String password = user.getPassword();
-        String profilePicture = user.getProfilePicture();
+    public Merchant createUser(@Valid MerchantDTO userDto) throws Exception{
+      String userName = userDto.getUserName();
+        String shopName = userDto.getShopName();
+        String phoneNumber = userDto.getPhoneNumber();
+        String categoryName = userDto.getCategoryName();
+      
+        System.out.println("Category name: " + categoryName);
 
-        if(userName!=null){
-            oldUser.setUserName(userName);
+        // Check if the category exists by name
+        Optional<Category> categoryOpt = categoryRepository.findByCategory(categoryName);
+
+        // Debug statement to check the fetched category
+        System.out.println("Fetched category: " + categoryOpt);
+        if (!categoryOpt.isPresent()) {
+            throw new Exception("Category does not exist");
         }
-        if(email!=null){
-          oldUser.setEmail(email);
-        }
-        if(password!=null){
-          oldUser.setPassword(passwordEncoder.encode(password));
-        }
-        if(profilePicture!=null){
-          oldUser.setProfilePicture(profilePicture);
-        }
-        
-        return userRepository.save(oldUser);
+
+      try{
+        Merchant createdMerchant = new Merchant();
+        createdMerchant.setUserName(userName);
+        createdMerchant.setShopName(shopName);
+        createdMerchant.setPhoneNumber(phoneNumber);
+        createdMerchant.setCategory(categoryOpt.get());
+        createdMerchant.setCreatedAt(LocalDateTime.now());
+      
+        return merchantRepository.save(createdMerchant);
+      }catch(Exception e){
+        throw new Exception(e);
+      }
     }
 
     @Override
     public void deleteUserById(Long id) throws Exception{
-      postService.deletePostByUser(id);
       findUserById(id);
-        userRepository.deleteById(id);
+        merchantRepository.deleteById(id);
     } 
     
 } 

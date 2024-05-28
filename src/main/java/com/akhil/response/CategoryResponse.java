@@ -1,6 +1,7 @@
 package com.akhil.response;
 
-import com.akhil.model.Merchant;
+import com.akhil.model.Category;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class CategoryResponse {
     private String message;
-    private Merchant user;
+    private Category category;
 }
